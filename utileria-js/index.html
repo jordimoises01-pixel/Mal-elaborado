@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Registro - Utileria JS</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Registro de Usuario</h1>
+        <form id="registroForm">
+            <div class="form-group">
+                <label for="nombre">Nombre Completo:</label>
+                <input type="text" id="nombre" placeholder="Ej. Jordi Moisés">
+                <span class="mensaje-error" id="errNombre">Solo se permiten letras y espacios.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="correo">Correo Electrónico:</label>
+                <input type="email" id="correo" placeholder="correo@ejemplo.com">
+                <span class="mensaje-error" id="errCorreo">Ingrese un correo electrónico válido.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="telefono">Teléfono (10 dígitos):</label>
+                <input type="number" id="telefono" placeholder="5512345678">
+                <span class="mensaje-error" id="errTelefono">El teléfono debe ser numérico y no exceder 10 dígitos.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="curp">CURP (18 caracteres):</label>
+                <input type="text" id="curp" placeholder="ABCD000101HDFXXX00" style="text-transform: uppercase;">
+                <span class="mensaje-error" id="errCURP">Ingrese una CURP válida de 18 caracteres.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="cp">Código Postal (5 dígitos):</label>
+                <input type="number" id="cp" placeholder="01000">
+                <span class="mensaje-error" id="errCP">El código postal debe tener exactamente 5 dígitos.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="fechaNacimiento">Fecha de Nacimiento:</label>
+                <input type="date" id="fechaNacimiento">
+                <span class="mensaje-error" id="errFecha">Seleccione una fecha válida.</span>
+            </div>
+
+            <button type="submit" class="btn">Validar y Registrar</button>
+        </form>
+
+        <a href="login.html" class="nav-link">Ir a Iniciar Sesión (login.html)</a>
+    </div>
+
+    <div class="modal-overlay" id="modalEdad">
+        <div class="modal-content">
+            <h2 id="tituloModal">¡Registro Exitoso!</h2>
+            <p id="textoDatos"></p>
+            <p id="textoEdad"></p>
+            <p id="textoMayorEdad"></p>
+            <button class="btn btn-secondary" onclick="cerrarModal()">Cerrar</button>
+        </div>
+    </div>
+
+    <script src="js/utileria.js"></script>
+
+    <script>
+        document.getElementById('registroForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const nombreVal = document.getElementById('nombre').value;
+            const correoVal = document.getElementById('correo').value;
+            const telefonoVal = document.getElementById('telefono').value;
+            const curpVal = document.getElementById('curp').value;
+            const cpVal = document.getElementById('cp').value;
+            const fechaVal = document.getElementById('fechaNacimiento').value;
+
+            let esValido = true;
+
+            if (!soloLetras(nombreVal)) {
+                document.getElementById('errNombre').style.display = 'block';
+                esValido = false;
+            } else {
+                document.getElementById('errNombre').style.display = 'none';
+            }
+
+            if (!validarCorreo(correoVal)) {
+                document.getElementById('errCorreo').style.display = 'block';
+                esValido = false;
+            } else {
+                document.getElementById('errCorreo').style.display = 'none';
+            }
+
+            if (!validarLongitud(telefonoVal, 10)) {
+                document.getElementById('errTelefono').style.display = 'block';
+                esValido = false;
+            } else {
+                document.getElementById('errTelefono').style.display = 'none';
+            }
+
+            if (!validarCURP(curpVal)) {
+                document.getElementById('errCURP').style.display = 'block';
+                esValido = false;
+            } else {
+                document.getElementById('errCURP').style.display = 'none';
+            }
+
+            if (!validarCP(cpVal)) {
+                document.getElementById('errCP').style.display = 'block';
+                esValido = false;
+            } else {
+                document.getElementById('errCP').style.display = 'none';
+            }
+
+            if (!fechaVal) {
+                document.getElementById('errFecha').style.display = 'block';
+                esValido = false;
+            } else {
+                document.getElementById('errFecha').style.display = 'none';
+            }
+
+            if (esValido) {
+                const edadCalculada = calcularEdad(fechaVal);
+                const mayorDeEdad = esMayorDeEdad(fechaVal);
+
+                document.getElementById('textoDatos').innerText = `Usuario: ${nombreVal} | CP: ${cpVal}`;
+                document.getElementById('textoEdad').innerText = `Edad calculada: ${edadCalculada} años.`;
+                document.getElementById('textoMayorEdad').innerText = mayorDeEdad 
+                    ? "Estado: Mayor de edad" 
+                    : "Estado: Menor de edad";
+
+                document.getElementById('modalEdad').style.display = 'flex';
+            }
+        });
+
+        function cerrarModal() {
+            document.getElementById('modalEdad').style.display = 'none';
+        }
+    </script>
+
+    <script>
+        console.log("1. validarCorreo ('correo@ejemplo.com'):", validarCorreo("correo@ejemplo.com"));
+        console.log("2. validarCorreo ('correo_malo'):", validarCorreo("correo_malo"));
+        console.log("3. soloLetras ('Jordi Moises'):", soloLetras("Jordi Moises"));
+        console.log("4. soloLetras ('Jordi123'):", soloLetras("Jordi123"));
+        console.log("5. validarLongitud ('5512345678', 10):", validarLongitud("5512345678", 10));
+        console.log("6. calcularEdad ('2000-05-15'):", calcularEdad("2000-05-15"));
+        console.log("7. esMayorDeEdad ('2000-05-15'):", esMayorDeEdad("2000-05-15"));
+        console.log("8. validarPassword ('Password123!'):", validarPassword("Password123!"));
+        console.log("9. validarCURP ('ABCD000101HDFXXX00'):", validarCURP("ABCD000101HDFXXX00"));
+        console.log("10. validarCP ('01000'):", validarCP("01000"));
+    </script>
+</body>
+</html>
